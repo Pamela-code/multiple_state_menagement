@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:multiple_state_menagement/store/todo_store.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:multiple_state_menagement/controller/todo_controller.dart';
 import 'package:multiple_state_menagement/widgets/add_todo_dialog.dart';
+import 'package:provider/provider.dart';
 
 class TodoListPage extends StatefulWidget {
   const TodoListPage({super.key});
@@ -11,8 +11,6 @@ class TodoListPage extends StatefulWidget {
 }
 
 class _TodoListPageState extends State<TodoListPage> {
-  TodoStore store = TodoStore();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,47 +20,49 @@ class _TodoListPageState extends State<TodoListPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Observer(builder: (_) {
-              return ListView.builder(
-                itemCount: store.todos.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                      store.todos[index],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(
-                        Icons.close,
+        child: Consumer<TodoController>(
+          builder: (BuildContext context, TodoController value, Widget? child) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ListView.builder(
+                  itemCount: value.todos.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(
+                        value.todos[index],
                       ),
-                      onPressed: () {
-                        store.todos.removeAt(index);
-                      },
-                    ),
-                  );
-                },
-              );
-            }),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AddTodoDialog(
-                        store: store,
+                      trailing: IconButton(
+                        icon: const Icon(
+                          Icons.close,
+                        ),
+                        onPressed: () {
+                          value.removeTodo(index);
+                        },
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AddTodoDialog(
+                            value: value,
+                          );
+                        },
                       );
                     },
-                  );
-                },
-                child: const Text('Add todo'),
-              ),
-            ),
-          ],
+                    child: const Text('Add todo'),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

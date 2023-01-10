@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:multiple_state_menagement/controller/todo_controller.dart';
 import 'package:multiple_state_menagement/pages/todo_list_page.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +18,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.pink,
       ),
-      home: const TodoListPage(),
+      home: ChangeNotifierProvider(
+        child: const TodoListPage(),
+        create: (context) => TodoController(),
+      ),
     );
   }
 }
