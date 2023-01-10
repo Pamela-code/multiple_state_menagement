@@ -27,7 +27,7 @@ class AddTodoDialog extends StatelessWidget {
             store.todo.clear();
             Navigator.pop(context);
           },
-          child: const Text('Cancelar'),
+          child: const Text('Cancel'),
         ),
       ],
     );
