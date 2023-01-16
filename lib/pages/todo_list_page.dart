@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:multiple_state_menagement/store/todo_store.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:multiple_state_menagement/blocs/todo_events.dart';
+import 'package:multiple_state_menagement/blocs/todo_state.dart';
 import 'package:multiple_state_menagement/widgets/add_todo_dialog.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../blocs/todo_bloc.dart';
 
 class TodoListPage extends StatefulWidget {
   const TodoListPage({super.key});
@@ -11,7 +14,19 @@ class TodoListPage extends StatefulWidget {
 }
 
 class _TodoListPageState extends State<TodoListPage> {
-  TodoStore store = TodoStore();
+  late final TodoBloc bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    bloc = TodoBloc();
+  }
+
+  @override
+  void dispose() {
+    bloc.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,27 +40,37 @@ class _TodoListPageState extends State<TodoListPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Observer(builder: (_) {
-              return ListView.builder(
-                itemCount: store.todos.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                      store.todos[index],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                      ),
-                      onPressed: () {
-                        store.todos.removeAt(index);
+            BlocBuilder<TodoBloc, TodoState>(
+                bloc: bloc,
+                builder: (context, state) {
+                  if (state is TodoListInitialState) {
+                    return const Center(
+                      child: Text('Add a Todo'),
+                    );
+                  } else if (state is TodoSuccessState) {
+                    return ListView.builder(
+                      itemCount: state.todos.length,
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(
+                            state.todos[index],
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(
+                              Icons.close,
+                            ),
+                            onPressed: () {
+                              bloc.add(
+                                  RemoveTodoEvent(todo: state.todos[index]));
+                            },
+                          ),
+                        );
                       },
-                    ),
-                  );
-                },
-              );
-            }),
+                    );
+                  }
+                  return const SizedBox();
+                }),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -54,7 +79,7 @@ class _TodoListPageState extends State<TodoListPage> {
                     context: context,
                     builder: (context) {
                       return AddTodoDialog(
-                        store: store,
+                        bloc: bloc,
                       );
                     },
                   );
