@@ -8,7 +8,7 @@ It's the same application in 3 different branches, with different approaches to 
 # Running the project
 - main branch: state management with Mobx package.
 - bloc branch: state management with Bloc and Flutter Bloc packages.
-- provider branch: state management with Provider package.
+- provider branch: state management with ChangeNotifier and Provider package.
 
 
 
